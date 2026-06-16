@@ -1,157 +1,171 @@
-# Meu Financeiro
+# Meu Financeiro Premium
 
-App financeiro pessoal, privado e sem dependência do n8n.
+App financeiro pessoal completo, responsivo e pronto para subir no EasyPanel.
 
-Ele foi feito para rodar em Docker/EasyPanel com PostgreSQL e interface 100% responsiva.
+Ele não depende do n8n. A aplicação tem backend próprio em Node.js, banco PostgreSQL, frontend responsivo, gráficos em Canvas e atualização em tempo real via WebSocket.
 
 ## O que vem pronto
 
-- Login privado por e-mail e senha definidos nas variáveis de ambiente.
-- Dashboard com visão geral em tempo real.
-- Página de gastos por mês, categoria, tipo e forma de pagamento.
-- Cadastro de categorias de gastos.
-- Página de caixinhas/objetivos, com meta, prazo, entradas, saídas e progresso.
-- Página de investimentos, com registro mensal por investimento.
-- Gráfico individual para cada investimento.
-- Página de patrimônio, com fechamento mensal e gráfico patrimonial geral.
-- Atualização em tempo real via Socket.IO.
-- Banco PostgreSQL com Prisma.
-- Layout moderno, clean, fluido e mobile-first.
+- Login privado por e-mail e senha configurados em variável de ambiente
+- Dashboard geral
+- Gastos e entradas mensais
+- Categorias de gastos e receitas
+- Contas bancárias e carteiras
+- Caixinhas com objetivo, valor-alvo, prazo e progresso
+- Movimentos de depósito e retirada nas caixinhas
+- Investimentos cadastráveis por ativo
+- Registro mensal de cada investimento
+- Gráfico individual para cada investimento
+- Composição da carteira
+- Fechamento patrimonial mensal
+- Gráfico de patrimônio geral no tempo
+- Planejamento mensal com meta de renda, limite de gastos e meta de sobra
+- Tema claro e escuro
+- Layout responsivo para desktop e mobile
+- PWA básico para instalar no celular
+- Dockerfile pronto
+- docker-compose para teste local
 
-## Tecnologias
+## Stack
 
-- React + Vite
-- Tailwind CSS
-- Framer Motion
-- Recharts
-- Node.js + Express
-- Socket.IO
+- Node.js
+- Express
 - PostgreSQL
-- Prisma
+- WebSocket
+- HTML, CSS e JavaScript puro
 - Docker
+
+## Estrutura
+
+```txt
+.
+├── Dockerfile
+├── docker-compose.yml
+├── package.json
+├── package-lock.json
+├── server.js
+├── .env.example
+└── public
+    ├── index.html
+    ├── styles.css
+    ├── app.js
+    ├── manifest.webmanifest
+    └── icons
+```
 
 ## Variáveis de ambiente
 
-Copie `.env.example` para `.env` no ambiente local ou configure no EasyPanel:
+Crie estas variáveis no EasyPanel:
 
 ```env
-DATABASE_URL="postgresql://financeiro:troque_esta_senha@postgres:5432/financeiro?schema=public"
-APP_EMAIL="seuemail@email.com"
-APP_PASSWORD="troque_esta_senha"
-JWT_SECRET="gere_um_segredo_grande_com_32_caracteres_ou_mais"
-APP_NAME="Meu Financeiro"
-NODE_ENV="production"
+DATABASE_URL=postgresql://postgres:SENHA@postgres-financeiro:5432/app_financeiro?schema=public
+APP_EMAIL=seuemail@email.com
+APP_PASSWORD=sua_senha_forte
+JWT_SECRET=troque_por_um_segredo_grande_com_32_caracteres_ou_mais
+APP_NAME=Meu Financeiro
 PORT=3000
+NODE_ENV=production
 COOKIE_SECURE=false
 ```
 
-Use `COOKIE_SECURE=true` apenas quando o domínio já estiver com HTTPS ativo.
+Depois que o domínio estiver com HTTPS funcionando, você pode trocar:
 
-## Rodar localmente com Docker
+```env
+COOKIE_SECURE=true
+```
+
+## Como criar o PostgreSQL no EasyPanel
+
+Na tela de criar Postgres, use:
+
+```txt
+Nome do serviço: postgres-financeiro
+Nome do banco de dados: app_financeiro
+Usuário: postgres
+Senha: gerar automaticamente
+Imagem Docker: postgres:17
+```
+
+Depois copie a senha gerada e monte a `DATABASE_URL`.
+
+Exemplo:
+
+```env
+DATABASE_URL=postgresql://postgres:SENHA_GERADA@postgres-financeiro:5432/app_financeiro?schema=public
+```
+
+## Como subir no EasyPanel
+
+1. Suba este projeto para um repositório no GitHub.
+2. No EasyPanel, crie um novo projeto ou use um projeto existente.
+3. Crie primeiro o serviço PostgreSQL.
+4. Crie um novo serviço do tipo App.
+5. Escolha o repositório GitHub do projeto.
+6. Configure a porta interna como `3000`.
+7. Cadastre as variáveis de ambiente.
+8. Clique em Deploy.
+
+O app cria as tabelas automaticamente na primeira inicialização.
+
+## Como rodar localmente
+
+Com Docker instalado:
 
 ```bash
-cp .env.example .env
-# ajuste APP_EMAIL, APP_PASSWORD e JWT_SECRET no .env
-
 docker compose up -d --build
 ```
 
-Acesse:
+Depois acesse:
 
-```text
+```txt
 http://localhost:3000
 ```
 
-## Rodar localmente em modo desenvolvimento
+Login local padrão do `docker-compose.yml`:
 
-Você precisa ter Node.js 20+ e PostgreSQL.
-
-```bash
-npm install
-cp .env.example .env
-npm run db:push
-npm run dev
+```txt
+E-mail: admin@financeiro.local
+Senha: admin123456
 ```
-
-Frontend:
-
-```text
-http://localhost:5173
-```
-
-Backend:
-
-```text
-http://localhost:3000
-```
-
-## Publicar no EasyPanel
-
-### Opção recomendada
-
-1. Crie um repositório no GitHub.
-2. Suba todos os arquivos deste projeto para o repositório.
-3. No EasyPanel, crie um projeto novo.
-4. Crie um serviço PostgreSQL.
-5. Anote usuário, senha, host interno, porta e nome do banco.
-6. Crie um serviço App apontando para o repositório GitHub.
-7. O EasyPanel vai usar o `Dockerfile` do projeto.
-8. Configure a porta exposta como `3000`.
-9. Configure as variáveis de ambiente:
-
-```env
-DATABASE_URL="postgresql://USUARIO:SENHA@HOST_INTERNO:5432/NOME_DO_BANCO?schema=public"
-APP_EMAIL="seuemail@email.com"
-APP_PASSWORD="sua_senha_forte"
-JWT_SECRET="um_segredo_grande_com_32_caracteres_ou_mais"
-APP_NAME="Meu Financeiro"
-NODE_ENV="production"
-PORT=3000
-COOKIE_SECURE=false
-```
-
-10. Faça o deploy.
-11. Depois que o domínio e HTTPS estiverem ativos, você pode trocar `COOKIE_SECURE` para `true` e redeployar.
-
-## Observações importantes
-
-- O app não usa n8n.
-- Os dados ficam no seu PostgreSQL.
-- O comando inicial sincroniza o banco automaticamente com Prisma.
-- Antes de usar de verdade, defina uma senha forte e gere um `JWT_SECRET` seguro.
-- Faça backup periódico do volume PostgreSQL no EasyPanel.
 
 ## Como usar
 
+### Dashboard
+
+Mostra o resumo do mês, entradas, gastos, saldo, patrimônio, fluxo dos últimos meses, patrimônio no tempo, últimos lançamentos e progresso das caixinhas.
+
 ### Gastos
 
-Entre em **Gastos**, selecione o mês e registre despesas.
-Você pode criar novas categorias e acompanhar gráficos por categoria e por dia.
+Registre gastos e entradas por data, conta, categoria, forma de pagamento e observação. Os gráficos mostram gastos por categoria e movimentação diária.
 
 ### Caixinhas
 
-Entre em **Caixinhas**, crie objetivos como reserva, viagem, carro ou apartamento.
-Depois registre entradas e saídas em cada caixinha.
+Crie objetivos como reserva de emergência, viagem, carro, casa ou qualquer meta pessoal. Depois registre depósitos e retiradas.
 
 ### Investimentos
 
-Entre em **Investimentos**, crie cada aplicação separadamente.
-Todo mês registre:
+Cadastre cada investimento e registre mensalmente:
 
-- valor total investido;
-- valor atual;
-- aporte do mês;
-- observação opcional.
+- total investido
+- valor atual
+- aporte do mês
+- rendimento do mês
+- notas
 
-Cada investimento terá seu próprio gráfico.
+Cada investimento tem gráfico individual e a carteira geral mostra composição e resultado.
 
 ### Patrimônio
 
-Entre em **Patrimônio** e registre o fechamento mensal.
-O sistema calcula:
+Todo mês, registre dinheiro em contas, outros bens e dívidas. O sistema soma automaticamente caixinhas e investimentos para gerar o patrimônio líquido.
 
-```text
-patrimônio = saldo em contas + outros bens + investimentos + caixinhas - dívidas
-```
+### Planejamento
 
-Esse é o gráfico principal para acompanhar sua evolução patrimonial no tempo.
+Defina meta de renda, limite de gastos e meta de sobra para cada mês.
+
+## Backup recomendado
+
+Como é um app pessoal com dados financeiros, faça backup periódico do PostgreSQL no EasyPanel ou use uma rotina externa de backup.
+
+## Observação importante
+
+Este projeto é um controle financeiro pessoal e não substitui consultoria financeira, contábil ou tributária.
