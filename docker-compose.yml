@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: financeiro
+      POSTGRES_USER: financeiro
+      POSTGRES_PASSWORD: troque_esta_senha
+    volumes:
+      - financeiro_postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgresql://financeiro:troque_esta_senha@postgres:5432/financeiro?schema=public
+      APP_EMAIL: seuemail@email.com
+      APP_PASSWORD: troque_esta_senha
+      JWT_SECRET: gere_um_segredo_grande_com_32_caracteres_ou_mais
+      APP_NAME: Meu Financeiro
+      NODE_ENV: production
+      PORT: 3000
+      COOKIE_SECURE: false
+    ports:
+      - "3000:3000"
+
+volumes:
+  financeiro_postgres:
